@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Event Ticket System</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input, select {
+      padding: 8px;
+      width: 250px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    button {
+      padding: 8px 12px;
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .ticket {
+      background: white;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+
+    .delete-btn {
+      background: red;
+    }
+
+    .checkin-btn {
+      background: green;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Event Ticket Booking</h1>
+
+  <h3>Create Event</h3>
+  <input id="eventName" placeholder="Event Name" />
+  <input id="venue" placeholder="Venue" />
+  <input id="date" placeholder="Date" />
+  <input id="capacity" type="number" placeholder="Capacity" />
+  <button onclick="createEvent()">Create Event</button>
+
+  <hr />
+
+  <h3>Book Ticket</h3>
+  <select id="eventSelect"></select>
+  <input id="userName" placeholder="User Name" />
+  <input id="price" type="number" placeholder="Price" />
+  <button onclick="addTicket()">Add Ticket</button>
+
+  <hr />
+
+  <h3>Tickets</h3>
+  <div id="tickets"></div>
+
+  <hr />
+
+  <h3>Dashboard</h3>
+  <div id="dashboard"></div>
+
+  <script>
+    const API = "http://localhost:5000/api";
+
+    function createEvent() {
+      fetch(`${API}/events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: eventName.value,
+          venue: venue.value,
+          date: date.value,
+          capacity: Number(capacity.value),
+        }),
+      }).then(loadEvents);
+    }
+
+    function loadEvents() {
+      fetch(`${API}/events`)
+        .then(res => res.json())
+        .then(data => {
+          eventSelect.innerHTML = "";
+          data.forEach(e => {
+            eventSelect.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+          });
+        });
+    }
+
+    function addTicket() {
+      fetch(`${API}/tickets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event_id: eventSelect.value,
+          user_name: userName.value,
+          price: Number(price.value),
+        }),
+      }).then(loadTickets);
+    }
+
+    function loadTickets() {
+      fetch(`${API}/tickets`)
+        .then(res => res.json())
+        .then(data => {
+          tickets.innerHTML = "";
+          data.forEach(t => {
+            tickets.innerHTML += `
+              <div class="ticket">
+                <p><b>Event:</b> ${t.event_name}</p>
+                <p><b>User:</b> ${t.user_name}</p>
+                <p><b>Price:</b> ₹${t.price}</p>
+                <p><b>Status:</b> ${t.status}</p>
+                <button class="checkin-btn" onclick="checkIn(${t.id})">Check-In</button>
+              </div>
+            `;
+          });
+        });
+    }
+
+    function checkIn(id) {
+      fetch(`${API}/tickets/${id}/checkin`, {
+        method: "PUT",
+      }).then(loadTickets);
+    }
+
+    function loadDashboard() {
+      fetch(`${API}/dashboard/summary`)
+        .then(res => res.json())
+        .then(d => {
+          dashboard.innerHTML = `
+            <p>Total Events: ${d.totalEvents}</p>
+            <p>Total Tickets: ${d.totalTickets}</p>
+            <p>Checked In: ${d.checkedIn}</p>
+            <p>Revenue: ₹${d.revenue}</p>
+          `;
+        });
+    }
+
+    loadEvents();
+    loadTickets();
+    loadDashboard();
+  </script>
+</body>
+</html>
