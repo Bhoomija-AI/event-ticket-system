@@ -10,18 +10,13 @@
       background: #f4f6f8;
       padding: 20px;
     }
-
-    h1 {
-      text-align: center;
-    }
-
+    h1 { text-align: center; }
     input, select {
       padding: 8px;
       width: 250px;
       margin-bottom: 10px;
       display: block;
     }
-
     button {
       padding: 8px 12px;
       background: #007bff;
@@ -30,25 +25,15 @@
       cursor: pointer;
       margin-right: 5px;
     }
-
-    button:hover {
-      background: #0056b3;
-    }
-
+    button:hover { background: #0056b3; }
     .ticket {
       background: white;
       padding: 10px;
       margin-bottom: 10px;
       border-radius: 5px;
     }
-
-    .delete-btn {
-      background: red;
-    }
-
-    .checkin-btn {
-      background: green;
-    }
+    .delete-btn { background: red; }
+    .checkin-btn { background: green; }
   </style>
 </head>
 
@@ -81,7 +66,7 @@
   <div id="dashboard"></div>
 
   <script>
-    const API = "http://localhost:5000/api";
+    const API = "https://event-ticket-system-mr8i.onrender.com/api";
 
     function createEvent() {
       fetch(`${API}/events`, {
@@ -139,9 +124,8 @@
     }
 
     function checkIn(id) {
-      fetch(`${API}/tickets/${id}/checkin`, {
-        method: "PUT",
-      }).then(loadTickets);
+      fetch(`${API}/tickets/${id}/checkin`, { method: "PUT" })
+        .then(loadTickets);
     }
 
     function loadDashboard() {
